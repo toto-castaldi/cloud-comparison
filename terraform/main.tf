@@ -10,7 +10,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-central-1"
+  region  = "eu-central-1"
 }
 
 module "s3_bucket" {
@@ -23,11 +23,11 @@ module "s3_bucket" {
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "my-lambda1"
-  description   = "My awesome lambda function"
-  handler       = "index.lambda_handler"
+  function_name = "serverless-logic"
+  description   = "Serverless Logic"
+  handler       = "lambda.lambda_handler"
   runtime       = "python3.8"
 
-  source_path = "../src/lambda-function1"
+  source_path = "../src"
   
 }

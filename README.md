@@ -19,7 +19,6 @@ Logic  : serverless Python code for image filtering (https://scikit-image.org/)
 Output : filtered image File
 
 ```bash
-cd terraform
-docker run -it -v `pwd`:/app  skillbillsrl/cloud-cicd-toolkit terraform init
-docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit terraform apply
+docker run -it -v `pwd`:/app  skillbillsrl/cloud-cicd-toolkit terraform -chdir=terraform init
+docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit terraform -chdir=terraform apply
 ```
