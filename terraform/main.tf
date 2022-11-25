@@ -28,18 +28,42 @@ resource "aws_iam_role" "iam_for_lambda" {
 
   assume_role_policy = <<EOF
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow"
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+          "Service": "lambda.amazonaws.com"
+        },
+        "Effect": "Allow"
+      }
+    ]
 }
 EOF
+}
+
+resource "aws_iam_policy" "lambda_logging_policy" {
+  name   = "lambda_logging_policy"
+  policy = <<EOF
+{
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Effect" : "Allow",
+        "Resource" : "arn:aws:logs:*:*:*"
+      }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logging_policy_attachment" {
+  role = aws_iam_role.iam_for_lambda.id
+  policy_arn = aws_iam_policy.lambda_logging_policy.arn
 }
 
 resource "aws_lambda_permission" "allow_bucket" {
@@ -76,4 +100,12 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 
   depends_on = [aws_lambda_permission.allow_bucket]
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/${aws_lambda_function.serverless_logic.function_name}"
+  retention_in_days = 7
+  lifecycle {
+    prevent_destroy = false
+  }
 }
