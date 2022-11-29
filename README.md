@@ -18,10 +18,7 @@ pip install -r requirements.txt
 
 ## Python layers
 
-```bash
-. .venv/bin/activate
-pip install -r src/pillow.txt -t python_pillow_layer
-```
+Thanks to https://github.com/keithrozario/Klayers
 
 # Terraform
 

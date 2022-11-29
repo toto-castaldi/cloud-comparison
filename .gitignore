@@ -6,4 +6,3 @@ terraform.tfstate.backup
 builds
 .venv
 .python-version
-python_pillow_layer
