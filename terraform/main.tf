@@ -68,7 +68,8 @@ resource "aws_iam_policy" "lambda_s3_policy" {
     "Statement" : [
       {
         "Action" : [
-          "s3:GetObject"
+          "s3:GetObject",
+          "s3:PutObject"
         ],
         "Effect" : "Allow",
         "Resource" : "arn:aws:s3::*:*"

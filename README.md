@@ -38,8 +38,12 @@ Logic  : serverless Python code for image manipulation (https://pillow.readthedo
 Output : filtered image File
 
 ```bash
+#Terraform
 docker run -it -v `pwd`:/app  skillbillsrl/cloud-cicd-toolkit terraform -chdir=terraform init
 docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit terraform -chdir=terraform apply
 
+#AWS S3
 docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit aws s3 cp /app/image.png s3://toto-castaldi-00/input/
+docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit aws s3 sync s3://toto-castaldi-00/output/ .
+
 ```

@@ -8,6 +8,9 @@ print("Loading function")
 
 s3 = boto3.client("s3")
 
+file_input = "/tmp/input.png"
+file_output_tmp = "/tmp/output.png"
+
 
 def lambda_handler(event, context):
     print("Received event: " + json.dumps(event, indent=2))
@@ -19,15 +22,22 @@ def lambda_handler(event, context):
         print("CONTENT TYPE: " + response["ContentType"])
         print(response)
 
+        file_output_s3 = key.replace("input", "output")
+
         body = response["Body"]
-        with io.FileIO("out.png", "w") as file:
+        with io.FileIO(file_input, "w") as file:
             for i in body:
                 file.write(i)
 
-        im = Image.open("out.png")
+        im = Image.open(file_input)
         im_filtered = im.filter(ImageFilter.BLUR)
+        im_filtered.save(file_output_tmp)
+
+        s3.put_object(Bucket=bucket, Key=file_output_s3,Body=open(file_output_tmp, "rb"))
+
+        print(file_output_s3)
  
-        return response["ContentType"]
+        return file_output_s3
     except Exception as e:
         print(e)
         print("Error getting object {} from bucket {}. Make sure they exist and your bucket is in the same region as this function.".format(key, bucket))
