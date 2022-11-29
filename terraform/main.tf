@@ -13,7 +13,6 @@ provider "aws" {
   region  = "eu-central-1"
 }
 
-
 data "archive_file" "lambda_zip_file" {
   type        = "zip"
   output_path = "/tmp/lambda_zip_file.zip"
@@ -21,6 +20,12 @@ data "archive_file" "lambda_zip_file" {
     content  = file("../src/lambda.py")
     filename = "lambda.py"
   }
+}
+
+data "archive_file" "lambda_pillow_layer" {
+  type        = "zip"
+  output_path = "/tmp/lambda_pillow_layer.zip"
+  source_dir  = "../python_pillow_layer"
 }
 
 resource "aws_iam_role" "iam_for_lambda" {
@@ -61,9 +66,32 @@ resource "aws_iam_policy" "lambda_logging_policy" {
 EOF
 }
 
+resource "aws_iam_policy" "lambda_s3_policy" {
+  name   = "lambda_s3_policy"
+  policy = <<EOF
+{
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : [
+          "s3:GetObject"
+        ],
+        "Effect" : "Allow",
+        "Resource" : "arn:aws:s3::*:*"
+      }
+    ]
+}
+EOF
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_logging_policy_attachment" {
   role = aws_iam_role.iam_for_lambda.id
   policy_arn = aws_iam_policy.lambda_logging_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attachment" {
+  role = aws_iam_role.iam_for_lambda.id
+  policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
 
 resource "aws_lambda_permission" "allow_bucket" {
@@ -74,6 +102,20 @@ resource "aws_lambda_permission" "allow_bucket" {
   source_arn    = aws_s3_bucket.bucket.arn
 }
 
+resource "aws_lambda_layer_version" "python_pillow" {
+  s3_bucket   = aws_s3_bucket.bucket.bucket
+  s3_key      = aws_s3_object.python_pillow.key
+  layer_name  = "python_pillow"
+
+  compatible_runtimes = ["python3.8"]
+}
+
+resource "aws_s3_object" "python_pillow" {
+  bucket = aws_s3_bucket.bucket.bucket
+  key    = "python_pillow"
+  source = "${data.archive_file.lambda_pillow_layer.output_path}"
+  etag = filemd5("${data.archive_file.lambda_pillow_layer.output_path}")
+}
 
 resource "aws_lambda_function" "serverless_logic" {
   function_name     = "serverless_logic"
@@ -83,6 +125,7 @@ resource "aws_lambda_function" "serverless_logic" {
   filename          = "${data.archive_file.lambda_zip_file.output_path}"
   source_code_hash  = "${data.archive_file.lambda_zip_file.output_base64sha256}"
   role              = aws_iam_role.iam_for_lambda.arn
+  layers            = [aws_lambda_layer_version.python_pillow.arn]
 }
 
 resource "aws_s3_bucket" "bucket" {
@@ -96,7 +139,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
     lambda_function_arn = aws_lambda_function.serverless_logic.arn
     events              = ["s3:ObjectCreated:*"]
     filter_prefix       = "input/"
-    filter_suffix       = ".txt"
   }
 
   depends_on = [aws_lambda_permission.allow_bucket]

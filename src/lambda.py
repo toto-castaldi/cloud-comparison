@@ -1,6 +1,7 @@
 import json
 import urllib.parse
 import boto3
+import os
 
 print('Loading function')
 
@@ -15,6 +16,9 @@ def lambda_handler(event, context):
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
         print("CONTENT TYPE: " + response['ContentType'])
+        print(response)
+
+ 
         return response['ContentType']
     except Exception as e:
         print(e)
