@@ -106,6 +106,7 @@ resource "aws_lambda_function" "serverless_logic" {
   source_code_hash  = "${data.archive_file.lambda_zip_file.output_base64sha256}"
   role              = aws_iam_role.iam_for_lambda.arn
   layers            = ["arn:aws:lambda:eu-central-1:770693421928:layer:Klayers-p38-Pillow:5"]
+  timeout           = 180
 }
 
 resource "aws_s3_bucket" "bucket" {

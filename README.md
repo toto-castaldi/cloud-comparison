@@ -20,6 +20,10 @@ pip install -r requirements.txt
 
 Thanks to https://github.com/keithrozario/Klayers
 
+# Utils
+
+[Imagemagick](https://imagemagick.org/index.php) for Image conversion in client
+
 # Terraform
 
 This project uses Terraform for IAC .
@@ -44,6 +48,6 @@ docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=
 
 #AWS S3
 docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit aws s3 cp /app/image.png s3://toto-castaldi-00/input/
-docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit aws s3 sync s3://toto-castaldi-00/output/ .
+docker run -it -v `pwd`:/app -e AWS_ACCESS_KEY_ID=[ID] -e AWS_SECRET_ACCESS_KEY=[KEY] skillbillsrl/cloud-cicd-toolkit aws s3 sync s3://toto-castaldi-00/output/ /app
 
 ```

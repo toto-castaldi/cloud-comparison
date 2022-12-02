@@ -20,8 +20,7 @@ def lambda_handler(event, context):
     try:
         response = s3.get_object(Bucket=bucket, Key=key)
         print("CONTENT TYPE: " + response["ContentType"])
-        print(response)
-
+        
         file_output_s3 = key.replace("input", "output")
 
         body = response["Body"]
